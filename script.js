@@ -1,18 +1,9 @@
 
 $(document).ready(function() {
 
-	// http://papermashup.com/read-url-get-variables-withjavascript/
-	function getUrlVars() {
-	    var vars = {};
-	    var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
-	        vars[key] = value;
-	    });
-	    return vars;
-	}
-
 
 //
-// Setup and "global" variables
+// Settings, "global" variables
 //
 
 	var kUseGutenberg		= 1,
@@ -33,22 +24,12 @@ $(document).ready(function() {
 		savedArray			= [],
 		textArray			= [];
 
-		if ( getUrlVars()["state"] == "twitter" ) {
-			outputSetting = kUseTwitter;
-			$("#twitterButton").addClass("selectedButton");
-		} else if ( getUrlVars()["state"] == "both" ) {
-			outputSetting = kUseBoth;
-			$("#bothButton").addClass("selectedButton");
-		} else if ( {
-			$("#gutenbergButton").addClass("selectedButton");
-		}
 
 //
 // Initial state
 //
 
 	$("#about").hide();
-
 
 
 //
