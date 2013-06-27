@@ -2,9 +2,10 @@
 $(document).ready(function() {
 
 	// http://papermashup.com/read-url-get-variables-withjavascript/
-	function getUrlVars() {
+	function getUrlVars(sourceString) {
+		var s = sourceString || window.location.href;
 	    var vars = {};
-	    var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+	    var parts = s.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
 	        vars[key] = value;
 	    });
 	    return vars;
@@ -24,9 +25,9 @@ $(document).ready(function() {
 		fetching 			= false, 
 		fetchingGutenberg	= false,
 		fetchingTweets		= false,
-		tweetsPage			= 1,
 		kTweetFetchLimit	= 99,
 		kTweetFetchMin		= 30,
+		nextResults 		= 0,
 
 		footerPosition		= "above",
 
@@ -68,22 +69,6 @@ $(document).ready(function() {
 		$(this).addClass("buttonHover");
 	}, function() {
 		$(this).removeClass("buttonHover");
-	});
-	$(".prefsButton").click( function(e) {
-			$(".prefsButton").removeClass("selectedButton");
-			$(e.target).addClass("selectedButton");
-
-			if ( e.target.text == "Twitter" ) {
-				outputSetting = kUseTwitter;
-			} else if ( e.target.text == "Gutenberg" ) {
-				outputSetting = kUseGutenberg;
-			} else {
-				outputSetting = kUseBoth;
-			}
-
-			$("#quotes").html("...");
-			textArray = [];
-			fetcher();
 	});
 
 	$("#aboutButton").hover(function() {
@@ -144,12 +129,13 @@ $(document).ready(function() {
 
 			$.getJSON(
 
-				'http://search.twitter.com/search.json?callback=?&rpp='+numOfTweets+'&page='+tweetsPage+'&q=%22I%20saw%20a%22+exclude:retweets',
+				'getTweets.php?count='+numOfTweets+'&nextResults='+nextResults,
 				function(data) {
+					console.log(data);
 					
 					fetchingTweets = false;
 
-				 	$.each(data.results, function(i, tweet) {
+				 	$.each(data.statuses, function(i, tweet) {
 
 					if(tweet.text !== undefined) {
 						var match = tweet.text.match(/^I saw/i);
@@ -169,7 +155,9 @@ $(document).ready(function() {
 						}
 					}
 				  });
-				  tweetsPage++;
+				  if ( data.search_metadata.next_results && getUrlVars(data.search_metadata.next_results)['max_id']) {
+				  	nextResults = getUrlVars(data.search_metadata.next_results)['max_id'];
+				  }
 				  displayText(textArray);
 				}
 			  );
@@ -213,7 +201,7 @@ $(document).ready(function() {
 
 		$("#quotes").append(concatedLines);
 
-		console.log("uniqueItems.length: " + uniqueItems.length);
+		//console.log("uniqueItems.length: " + uniqueItems.length);
 		savedArray = savedArray.concat(uniqueItems);
 		if ( savedArray.length > 2000 ) {
 			savedArray = [];
